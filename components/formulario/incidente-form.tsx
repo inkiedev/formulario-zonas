@@ -23,6 +23,7 @@ import {Card, CardBody, CardHeader} from "@heroui/card";
 import {Superintendente} from "@/types/superintendente";
 import {ValidationResult} from "@react-types/shared";
 import {Jefe} from "@/types/jefe";
+import {Operador} from "@/types/operador";
 
 const validarLista = ({ validationDetails }: ValidationResult) => {
   if (validationDetails.valueMissing) {
@@ -30,9 +31,11 @@ const validarLista = ({ validationDetails }: ValidationResult) => {
   }
 }
 
+const ETR_TEXT = "Indicar tiempo estimado de atención (ETR), de acuerdo a lo solicitado por la D-DIDIS, Memorando Nro. DIDIS-2024-4024-M"
+
 export default function IncidenteForm(
-  { asuntos, motivos, dispositivos, responsables, superintendentes, jefes}:
-  { asuntos: Asunto[], motivos: Motivo[], dispositivos: Dispositivo[], responsables: Responsable[], superintendentes: Superintendente[], jefes: Jefe[] }
+  { asuntos, motivos, dispositivos, responsables, superintendentes, jefes, operadores}:
+  { asuntos: Asunto[], motivos: Motivo[], dispositivos: Dispositivo[], responsables: Responsable[], superintendentes: Superintendente[], jefes: Jefe[], operadores: Operador[] }
 ) {
   const [zonaSeleccionada, setZonaSeleccionada] = useState<string | null>(null);
   const [responsableSeleccionado, setResponsableSeleccionado] = useState<Responsable | null>(null);
@@ -73,7 +76,7 @@ export default function IncidenteForm(
 
   return (
     <Form
-      className="w-full justify-center items-center space-y-4 p-5"
+      className="w-full justify-center items-center space-y-4 p-5 text-base"
       onSubmit={onSubmit}
     >
       <div>
@@ -86,9 +89,11 @@ export default function IncidenteForm(
           }
         }}
         isRequired
+        label="Zona"
         onChange={e => setZonaSeleccionada(e.target.value)}
         name="zona"
-        orientation="horizontal">
+        orientation="horizontal"
+        >
           <Radio value="Zona 1">Zona 1</Radio>
           <Radio value="Zona 2">Zona 2</Radio>
           <Radio value="Zona 3">Zona 3</Radio>
@@ -182,15 +187,34 @@ export default function IncidenteForm(
           isRequired
           defaultFilter={filtrar}
           defaultItems={jefes}
-          label="Operador"
+          label="Atendido por"
           labelPlacement="outside"
           placeholder="Incidente atendido por..."
           variant="bordered"
-          name="superintendente"
+          name="jefe"
         >
           {(jefe: Jefe)=> (
-            <AutocompleteItem key={jefe.id}>
+            <AutocompleteItem key={jefe.id} textValue={`${jefe.grupo} ${jefe.jefe}`}>
               {jefe.grupo} {jefe.jefe}
+            </AutocompleteItem>
+          )}
+        </Autocomplete>
+
+        <Autocomplete
+          allowsCustomValue
+          errorMessage={validarLista}
+          isRequired
+          defaultFilter={filtrar}
+          defaultItems={operadores}
+          label="Operador"
+          labelPlacement="outside"
+          placeholder="Elija el operador o escribalo si no existe"
+          variant="bordered"
+          name="operador"
+        >
+          {(operador: Operador)=> (
+            <AutocompleteItem key={operador.id}>
+              {operador.operador}
             </AutocompleteItem>
           )}
         </Autocomplete>
@@ -219,12 +243,12 @@ export default function IncidenteForm(
           errorMessage={validarLista}
           defaultFilter={filtrar}
           defaultItems={responsablesFiltrados}
+          isDisabled={zonaSeleccionada === null}
           label="Seleccione el alimentador"
           labelPlacement="outside"
           placeholder="Seleccionar alimentador"
           onSelectionChange={(key) => {
             setResponsableSeleccionado(responsables.find(responsable => responsable.id == key as number) as Responsable);
-            console.log(responsableSeleccionado)
           }}
           listboxProps={{
             emptyContent: "No hay resultados",
@@ -283,11 +307,13 @@ export default function IncidenteForm(
           <Radio value="false">No</Radio>
         </RadioGroup>
 
+        <Textarea label="ETR" labelPlacement="outside" isReadOnly value={ETR_TEXT} variant="bordered" />
+
         <div className="flex gap-4">
           <Button className="w-full" color="primary" type="submit" variant="bordered">
-            Enviar
+            Registrar
           </Button>
-          <Button type="reset" variant="bordered">
+          <Button type="reset" onPress={() => setZonaSeleccionada(null)} variant="bordered">
             Reiniciar
           </Button>
         </div>
