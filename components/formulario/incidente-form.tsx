@@ -92,7 +92,6 @@ export default function IncidenteForm(
 
       redirect("/incidentes");
     } else {
-      const error = await req.json();
       addToast({
         title: "No se registro el incidente",
         description: "Ocurrio un error al registrar el incidente.",
