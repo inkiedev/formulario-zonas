@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
   }
 
   const incidente = validation.data;
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from('incidentes')
     .insert([
       incidente
@@ -47,7 +47,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error }, { status: 500 });
   }
 
-  return NextResponse.redirect(new URL('/incidentes', request.url))
+  return NextResponse.json({ data }, { status: 200 })
 }
 
 export async function PATCH(request: NextRequest) {

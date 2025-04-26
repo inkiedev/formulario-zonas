@@ -90,7 +90,7 @@ export default function IncidenteForm(
         timeout: 3000,
       })
 
-      redirect("/incidentes");
+      redirect("/crear");
     } else {
       addToast({
         title: "No se registro el incidente",
