@@ -6,15 +6,16 @@ import {
   Button,
   Autocomplete,
   AutocompleteItem,
-  DatePicker,
   Radio,
   RadioGroup,
   Divider,
-  Textarea
+  Textarea,
+  addToast
 } from "@heroui/react";
 
-import {now, getLocalTimeZone, ZonedDateTime} from "@internationalized/date";
+
 import {FormEvent, useEffect, useState} from "react";
+import {redirect} from "next/navigation";
 import { Asunto } from "@/types/asuntos";
 import { Motivo } from "@/types/motivos";
 import {Dispositivo} from "@/types/dispositivo";
@@ -24,6 +25,7 @@ import {Superintendente} from "@/types/superintendente";
 import {ValidationResult} from "@react-types/shared";
 import {Jefe} from "@/types/jefe";
 import {Operador} from "@/types/operador";
+import {IncidenteDTO} from "@/dto/incidente.dto";
 
 const validarLista = ({ validationDetails }: ValidationResult) => {
   if (validationDetails.valueMissing) {
@@ -39,11 +41,6 @@ export default function IncidenteForm(
 ) {
   const [zonaSeleccionada, setZonaSeleccionada] = useState<string | null>(null);
   const [responsableSeleccionado, setResponsableSeleccionado] = useState<Responsable | null>(null);
-  const [today, setToday] = useState<ZonedDateTime | null>(null);
-
-  useEffect(() => {
-    setToday(now(getLocalTimeZone()));
-  }, []);
 
   useEffect(() => {
     if (responsableSeleccionado) {
@@ -62,11 +59,47 @@ export default function IncidenteForm(
     return textValue.slice(0, inputValue.length) === inputValue;
   };
 
-  const onSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     const data = Object.fromEntries(new FormData(e.currentTarget));
-    console.log(data)
+
+    const incidentData = {
+      incidente: data.incidente,
+      zona: data.zona,
+      asunto: data.asunto,
+      motivo: data.motivo,
+      dispositivo: data.dispositivo,
+      nombre_dispositivo: data.nombre_dispositivo,
+      atencion: data.jefe,
+      operador: data.operador,
+      superintendente: data.superintendente,
+      id_responsable: responsableSeleccionado?.id,
+      direccion: data.direccion,
+      observaciones: data.observaciones || null,
+      tiene_archivo: data.archivo === "true",
+    } as IncidenteDTO;
+
+    const req = await fetch("/api/incidentes", { method: "POST", body: JSON.stringify(incidentData) })
+
+    if (req.status === 200) {
+      addToast({
+        title: "Incidente registrado",
+        description: "El incidente se ha registrado correctamente.",
+        color: "success",
+        timeout: 3000,
+      })
+
+      redirect("/incidentes");
+    } else {
+      const error = await req.json();
+      addToast({
+        title: "No se registro el incidente",
+        description: "Ocurrio un error al registrar el incidente.",
+        color: "danger",
+        timeout: 3000,
+      })
+    }
   };
 
   const responsablesFiltrados = responsables.filter((responsable) => {
@@ -99,18 +132,6 @@ export default function IncidenteForm(
           <Radio value="Zona 3">Zona 3</Radio>
           <Radio value="Zona 10">Zona 10</Radio>
         </RadioGroup>
-
-        {today && (
-          <DatePicker
-            isReadOnly
-            hideTimeZone
-            showMonthAndYearPickers
-            defaultValue={today}
-            name="fecha"
-            label="Fecha del incidente"
-            variant="bordered"
-          />
-        )}
 
         <Input
           label="Incidente"
@@ -164,6 +185,7 @@ export default function IncidenteForm(
           labelPlacement="outside"
           placeholder="Escriba el dispositivo si no existe"
           variant="bordered"
+          name="dispositivo"
         >
           {(item: Dispositivo) => <AutocompleteItem key={item.id}>{item.descripcion}</AutocompleteItem>}
         </Autocomplete>

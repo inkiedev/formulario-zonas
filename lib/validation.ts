@@ -2,13 +2,16 @@ import { z } from "zod"
 
 export const incidentSchema = z.object({
   incidente: z.string().length(10, "El número de incidente debe tener 10 dígitos"),
-  fecha: z.string().refine((date) => !isNaN(Date.parse(date)), "Fecha inválida"),
-  operador: z.string(),
-  motivo: z.string(),
-  direccion: z.string(),
-  observaciones: z.string().optional(),
+  zona: z.string().min(1, "La zona es obligatoria"),
+  asunto: z.string().min(1, "El asunto es obligatorio"),
+  motivo: z.string().min(1, "El motivo es obligatorio"),
+  dispositivo: z.string().min(1, "El dispositivo es obligatorio"),
+  nombre_dispositivo: z.string().min(1, "El nombre del dispositivo es obligatorio"),
+  atencion: z.string().min(1, "La atención es obligatoria"),
+  operador: z.string().min(1, "El operador es obligatorio"),
+  superintendente: z.string().min(1, "El superintendente es obligatorio"),
+  id_responsable: z.number().min(1, "El responsable es obligatorio"),
+  direccion: z.string().min(1, "La dirección es obligatoria"),
+  observaciones: z.string().optional().nullable(),
+  tiene_archivo: z.boolean(),
 });
-
-export function validateIncident(data: never) {
-  return incidentSchema.parse(data);
-}
