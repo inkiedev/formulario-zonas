@@ -1,23 +1,27 @@
-import { useEffect, useState } from "react";
-import {Incidente} from "@/types/incidente";
+import { useEffect, useState, useCallback } from "react";
+import { Incidente } from "@/types/incidente";
 
-export function useIncidentes(page = 1, limit = 10) {
+export function useIncidentes() {
   const [incidentes, setIncidentes] = useState<Incidente[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  const fetchIncidentes = useCallback(() => {
     setLoading(true);
 
-    fetch(`/api/incidentes?page=${page}&limit=${limit}`)
+    fetch(`/api/incidentes`)
       .then(res => res.json())
       .then(res => {
-        console.log(res.data)
+        console.log(res.data);
         setIncidentes(res.data as Incidente[]);
         setTotal(res.total);
       })
       .finally(() => setLoading(false));
-  }, [page, limit]);
+  }, []);
 
-  return { incidentes, total, loading };
+  useEffect(() => {
+    fetchIncidentes();
+  }, [fetchIncidentes]);
+
+  return { incidentes, total, loading, refetch: fetchIncidentes };
 }

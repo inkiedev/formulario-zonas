@@ -1,16 +1,9 @@
 import {NextRequest, NextResponse} from "next/server";
 import {createClient} from "@/lib/server";
-import {incidentSchema} from "@/lib/validation";
+import {atencionSchema, incidentSchema} from "@/lib/validation";
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   const supabase = await createClient();
-
-  const { searchParams } = new URL(request.url);
-  const page = parseInt(searchParams.get("page") || "1", 10);
-  const limit = parseInt(searchParams.get("limit") || "10", 10);
-
-  const from = (page - 1) * limit;
-  const to = from + limit - 1;
 
   const { data, error, count } = await supabase
     .from("incidentes")
@@ -23,7 +16,6 @@ export async function GET(request: NextRequest) {
       zona
     )
   `, { count: "exact" })
-    .range(from, to)
     .order("fecha_creacion", { ascending: false });
 
   if (error) {
@@ -44,7 +36,7 @@ export async function POST(request: NextRequest) {
   }
 
   const incidente = validation.data;
-  const { data, error } = await supabase
+  const { error } = await supabase
     .from('incidentes')
     .insert([
       incidente
@@ -56,4 +48,29 @@ export async function POST(request: NextRequest) {
   }
 
   return NextResponse.redirect(new URL('/incidentes', request.url))
+}
+
+export async function PATCH(request: NextRequest) {
+  const supabase = await createClient();
+  const payload = await request.json();
+
+  console.log(payload)
+
+  const validation = atencionSchema.safeParse(payload.data);
+
+  if (!validation.success) {
+    return NextResponse.json({ error: validation.error.format() }, { status: 422 });
+  }
+
+  const {data, error} = await supabase
+    .from('incidentes')
+    .update(payload.data)
+    .eq('id', payload.incidente)
+
+  if (error) {
+    console.log(error)
+    return NextResponse.json({ error }, { status: 500 });
+  }
+
+  return NextResponse.json({ data }, {status: 200})
 }

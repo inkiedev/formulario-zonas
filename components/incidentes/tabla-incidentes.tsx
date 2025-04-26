@@ -9,41 +9,41 @@ import {
   DropdownMenu,
   DropdownTrigger,
   Input,
-  Pagination, SharedSelection, SortDescriptor,
+  Link,
+  Pagination, SharedSelection, SortDescriptor, Spinner,
   Table,
   TableBody,
   TableCell,
   TableColumn,
   TableHeader,
-  TableRow,
+  TableRow, useDisclosure,
 } from "@heroui/react";
 import {Incidente} from "@/types/incidente";
 import {useIncidentes} from "@/hooks/use-incidentes";
+import ModalAtencion from "@/components/incidentes/modal-atencion";
 
 export const columns = [
   {name: "ITEM", uid: "id", sortable: true},
   {name: "INCIDENTE", uid: "incidente", sortable: true},
-  {name: "FECHA", uid: "fecha_creacion"},
+  {name: "FECHA", uid: "fecha_creacion",sortable: true, minWidth: "min-w-[10rem]"},
   {name: "ESTADO", uid: "esta_atendido", sortable: true},
   {name: "ASUNTO", uid: "asunto"},
   {name: "MOTIVO", uid: "motivo"},
   {name: "TIPO DE DISPOSITIVO", uid: "dispositivo"},
   {name: "DISPOSITIVO", uid: "nombre_dispositivo"},
-  {name: "ATENDIDO POR", uid: "atencion"},
+  {name: "ATENDIDO POR", uid: "atencion", minWidth: "min-w-[15rem]"},
   {name: "OPERADOR", uid: "operador"},
   {name: "SUPERINTENDENTE", uid: "superintendente"},
   {name: "ALIMENTADOR", uid: "responsables.alimentador"},
-  {name: "RESPONSABLE", uid: "responsables.responsable"},
-  {name: "AUXILIAR", uid: "responsables.auxiliar"},
-  {name: "ZONA", uid: "responsables.zona"},
+  {name: "RESPONSABLE", uid: "responsables.responsable", minWidth: "min-w-[12rem]"},
+  {name: "AUXILIAR", uid: "responsables.auxiliar", minWidth: "min-w-[12rem]"},
   {name: "DIRECCION", uid: "direccion"},
   {name: "OBSERVACIONES", uid: "observaciones"},
   {name: "ARCHIVO", uid: "tiene_archivo"},
   {name: "FECHA DE ATENCION", uid: "fecha_atencion"},
   {name: "OBSERVACIONES DE ATENCION", uid: "observaciones_atencion"},
-  {name: "OPERADOR DE ATENCION", uid: "operador_atencion"},
-  {name: "ZONA", uid: "zona"},
-  {name: "ACCIONES", uid: "actions"},
+  {name: "PERSONAL QUE ATIENDE", uid: "operador_atencion", minWidth: "min-w-[15rem]"},
+  {name: "ZONA", uid: "zona", minWidth: "min-w-[5rem]"},
 ];
 
 export const statusOptions = [
@@ -51,13 +51,16 @@ export const statusOptions = [
   {name: "Despachado", uid: "despachado"},
 ];
 
-export function formatearFecha(fecha: string) {
-  const opciones: Intl.DateTimeFormatOptions = {
+export function formatearFechaYHora(fecha: string) {
+  const date = new Date(fecha);
+  const options: Intl.DateTimeFormatOptions = {
     year: "numeric",
     month: "2-digit",
     day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
   };
-  return new Date(fecha).toLocaleDateString("es-ES", opciones);
+  return date.toLocaleString("es-ES", options);
 }
 
 export function capitalize(s: string | null | undefined) {
@@ -86,26 +89,6 @@ export const PlusIcon = ({size = 24, width, height, ...props}: { size?: number, 
         <path d="M6 12h12" />
         <path d="M12 18V6" />
       </g>
-    </svg>
-  );
-};
-
-export const VerticalDotsIcon = ({size = 24, width, height, ...props}: { size?: number, width?: number, height?: number, props?: object }) => {
-  return (
-    <svg
-      aria-hidden="true"
-      fill="none"
-      focusable="false"
-      height={size || height}
-      role="presentation"
-      viewBox="0 0 24 24"
-      width={size || width}
-      {...props}
-    >
-      <path
-        d="M12 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0-6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 12c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"
-        fill="currentColor"
-      />
     </svg>
   );
 };
@@ -165,16 +148,18 @@ export const ChevronDownIcon = ({strokeWidth = 1.5, ...otherProps}) => {
 };
 
 export default function TablaIncidentes() {
-  const {incidentes, total, loading}: { incidentes: Incidente[], total: number, loading: boolean } = useIncidentes();
+  const {incidentes, loading, refetch }: { incidentes: Incidente[], total: number, loading: boolean, refetch: () => void } = useIncidentes();
   const [filterValue, setFilterValue] = useState("");
   const [visibleColumns, setVisibleColumns] = useState<SharedSelection>("all");
   const [statusFilter, setStatusFilter] = useState<SharedSelection>("all");
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>({
     column: "id",
-    direction: "ascending",
+    direction: "descending",
   });
   const [page, setPage] = useState(1);
+  const [incidente, setIncidente] = useState<Incidente | null>(null);
+  const {isOpen, onOpen, onOpenChange} = useDisclosure();
 
   const hasSearchFilter = Boolean(filterValue);
 
@@ -199,7 +184,7 @@ export default function TablaIncidentes() {
     }
 
     return filteredUsers;
-  }, [incidentes, filterValue, statusFilter]);
+  }, [incidentes, hasSearchFilter, statusFilter, filterValue]);
 
   const pages = Math.ceil(filteredItems.length / rowsPerPage);
 
@@ -230,106 +215,90 @@ export default function TablaIncidentes() {
         );
       case "incidente":
         return (
-          <p className="text-bold text-tiny capitalize text-default-400">{incidente.incidente}</p>
+          <p className="text-bold text-tiny capitalize">{incidente.incidente}</p>
         );
       case "esta_atendido":
         return (
-          <Chip className="capitalize" color={incidente.esta_atendido ? "success" : "warning"} size="sm" variant="flat">
+          <Chip className="capitalize" onClick={() => {
+            if (!incidente.esta_atendido) {
+              setIncidente(incidente);
+              onOpen();
+            }
+          }} color={incidente.esta_atendido ? "success" : "warning"} size="sm" variant="flat">
             {capitalize(incidente.esta_atendido ? "atendido": "despachado")}
           </Chip>
         );
       case "fecha_creacion":
         return (
-          <p className="text-bold text-tiny capitalize text-default-400">{formatearFecha(incidente.fecha_creacion)}</p>
+          <p className="text-bold text-tiny">{formatearFechaYHora(incidente.fecha_creacion)}</p>
         );
       case "asunto":
         return (
-          <p className="text-bold text-tiny capitalize text-default-400">{incidente.asunto}</p>
+          <p className="text-bold text-tiny">{incidente.asunto}</p>
         );
       case "motivo":
         return (
-          <p className="text-bold text-tiny capitalize text-default-400">{incidente.motivo}</p>
+          <p className="text-bold text-tiny">{incidente.motivo}</p>
         );
       case "dispositivo":
         return (
-          <p className="text-bold text-tiny capitalize text-default-400">{incidente.dispositivo}</p>
+          <p className="text-bold text-tiny">{incidente.dispositivo}</p>
         );
       case "nombre_dispositivo":
         return (
-          <p className="text-bold text-tiny capitalize text-default-400">{incidente.nombre_dispositivo}</p>
+          <p className="text-bold text-tiny">{incidente.nombre_dispositivo}</p>
         );
       case "atencion":
         return (
-          <p className="text-bold text-tiny capitalize text-default-400">{incidente.atencion}</p>
+          <p className="text-bold text-tiny">{incidente.atencion}</p>
         );
       case "operador":
         return (
-          <p className="text-bold text-tiny capitalize text-default-400">{incidente.operador}</p>
+          <p className="text-bold text-tiny">{incidente.operador}</p>
         );
       case "superintendente":
         return (
-          <p className="text-bold text-tiny capitalize text-default-400">{incidente.superintendente}</p>
+          <p className="text-bold text-tiny">{incidente.superintendente}</p>
         );
       case "responsables.alimentador":
         return (
-          <p className="text-bold text-tiny capitalize text-default-400">{incidente.responsables.alimentador}</p>
+          <p className="text-bold text-tiny">{incidente.responsables.alimentador}</p>
         );
       case "responsables.responsable":
         return (
-          <p className="text-bold text-tiny capitalize text-default-400">{incidente.responsables.responsable}</p>
+          <p className="text-bold text-tiny">{incidente.responsables.responsable}</p>
         );
       case "responsables.auxiliar":
         return (
-          <p className="text-bold text-tiny capitalize text-default-400">{incidente.responsables.auxiliar}</p>
-        );
-      case "responsables.zona":
-        return (
-          <p className="text-bold text-tiny capitalize text-default-400">{incidente.responsables.zona}</p>
+          <p className="text-bold text-tiny">{incidente.responsables.auxiliar}</p>
         );
       case "direccion":
         return (
-          <p className="text-bold text-tiny capitalize text-default-400">{incidente.direccion}</p>
+          <p className="text-bold text-tiny">{incidente.direccion}</p>
         );
       case "observaciones":
         return (
-          <p className="text-bold text-tiny capitalize text-default-400">{incidente.observaciones}</p>
+          <p className="text-bold text-tiny">{incidente.observaciones || "Sin observaciones"}</p>
         );
       case "tiene_archivo":
         return (
-          <p className="text-bold text-tiny capitalize text-default-400">{incidente.tiene_archivo ? "Si" : "No"}</p>
+          <p className="text-bold text-tiny">{incidente.tiene_archivo ? "Si" : "No"}</p>
         );
       case "fecha_atencion":
         return (
-          <p className="text-bold text-tiny capitalize text-default-400">{!incidente.fecha_atencion ? "No atendido": formatearFecha(incidente.fecha_atencion)}</p>
+          <p className="text-bold text-tiny">{!incidente.fecha_atencion ? "No atendido": formatearFechaYHora(incidente.fecha_atencion)}</p>
         );
       case "observaciones_atencion":
         return (
-          <p className="text-bold text-tiny capitalize text-default-400">{incidente.observaciones_atencion}</p>
+          <p className="text-bold text-tiny">{incidente.observaciones_atencion === "NULL" ? "No atendido" : (incidente.observaciones_atencion === "" ? "Sin observaciones" : incidente.observaciones_atencion)}</p>
         );
       case "operador_atencion":
         return (
-          <p className="text-bold text-tiny capitalize text-default-400">{incidente.operador_atencion}</p>
+          <p className="text-bold text-tiny">{incidente.operador_atencion?.length === 0 ? "No atendido" : incidente.operador_atencion}</p>
         );
       case "zona":
         return (
-          <p className="text-bold text-tiny capitalize text-default-400">{incidente.zona}</p>
-        );
-      case "actions":
-        return (
-          <div className="relative flex justify-end items-center gap-2">
-            <Dropdown>
-              <DropdownTrigger>
-                <Button isIconOnly size="sm" variant="light">
-                  <VerticalDotsIcon  />
-                </Button>
-              </DropdownTrigger>
-              <DropdownMenu>
-                <DropdownItem key="view">View</DropdownItem>
-                <DropdownItem key="edit">Edit</DropdownItem>
-                <DropdownItem key="delete">Delete</DropdownItem>
-              </DropdownMenu>
-            </Dropdown>
-          </div>
+          <p className="text-bold text-tiny">{incidente.zona}</p>
         );
       default:
         return cellValue;
@@ -374,7 +343,7 @@ export default function TablaIncidentes() {
           <Input
             isClearable
             className="w-full sm:max-w-[44%]"
-            placeholder="Search by name..."
+            placeholder="Buscar por incidente..."
             startContent={<SearchIcon />}
             value={filterValue}
             onClear={() => onClear()}
@@ -408,12 +377,12 @@ export default function TablaIncidentes() {
             <Dropdown>
               <DropdownTrigger className="hidden sm:flex">
                 <Button endContent={<ChevronDownIcon className="text-small" />} variant="flat">
-                  Columns
+                  Columnas
                 </Button>
               </DropdownTrigger>
               <DropdownMenu
                 disallowEmptySelection
-                aria-label="Table Columns"
+                aria-label="Columnas de tabla"
                 closeOnSelect={false}
                 selectedKeys={visibleColumns}
                 selectionMode="multiple"
@@ -429,36 +398,28 @@ export default function TablaIncidentes() {
                 ))}
               </DropdownMenu>
             </Dropdown>
-            <Button color="primary" endContent={<PlusIcon />}>
-              Add New
+            <Button color="primary" as={Link} href="/crear" endContent={<PlusIcon />} >
+              Agregar incidente
             </Button>
           </div>
         </div>
         <div className="flex justify-between items-center">
-          <span className="text-default-400 text-small">Total de incidentes: {total}</span>
-          <label className="flex items-center text-default-400 text-small">
-            Rows per page:
+          <span className="text-small">Total de incidentes: {filteredItems.length}</span>
+          <label className="flex items-center text-small">
+            Incidentes por pagina:
             <select
-              className="bg-transparent outline-none text-default-400 text-small"
+              className="ml-1 bg-transparent outline-none text-default-400 text-small"
               onChange={onRowsPerPageChange}
             >
-              <option value="5">5</option>
               <option value="10">10</option>
               <option value="15">15</option>
+              <option value="15">20</option>
             </select>
           </label>
         </div>
       </div>
     );
-  }, [
-    filterValue,
-    statusFilter,
-    visibleColumns,
-    onRowsPerPageChange,
-    incidentes.length,
-    onSearchChange,
-    hasSearchFilter,
-  ]);
+  }, [filterValue, onSearchChange, statusFilter, visibleColumns, filteredItems.length, onRowsPerPageChange, onClear]);
 
   const bottomContent = useMemo(() => {
     return (
@@ -474,24 +435,24 @@ export default function TablaIncidentes() {
         />
         <div className="hidden sm:flex w-[30%] justify-end gap-2">
           <Button isDisabled={pages === 1} size="sm" variant="flat" onPress={onPreviousPage}>
-            Previous
+            Anterior
           </Button>
           <Button isDisabled={pages === 1} size="sm" variant="flat" onPress={onNextPage}>
-            Next
+            Siguiente
           </Button>
         </div>
       </div>
     );
-  }, [items.length, page, pages, hasSearchFilter]);
+  }, [page, pages, onPreviousPage, onNextPage]);
 
-  return (
-    <Table
+  return <>
+    { loading ? <Spinner className="mx-auto w-full" size="lg" /> : <Table
       isHeaderSticky
       aria-label="Tabla de incidentes"
       bottomContent={bottomContent}
       bottomContentPlacement="outside"
       classNames={{
-        wrapper: "h-[80vh]",
+        wrapper: "h-full",
       }}
       sortDescriptor={sortDescriptor}
       topContent={topContent}
@@ -502,8 +463,9 @@ export default function TablaIncidentes() {
         {(column) => (
           <TableColumn
             key={column.uid}
-            align={column.uid === "actions" ? "center" : "start"}
+            align={"center"}
             allowsSorting={column.sortable}
+            className={column.minWidth}
           >
             {column.name}
           </TableColumn>
@@ -516,7 +478,8 @@ export default function TablaIncidentes() {
           </TableRow>
         )}
       </TableBody>
-    </Table>
-  );
+    </Table> }
+    <ModalAtencion isOpen={isOpen} onOpenChange={onOpenChange} incidente={incidente} onSave={refetch} />
+  </>
 }
 

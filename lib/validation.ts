@@ -15,3 +15,10 @@ export const incidentSchema = z.object({
   observaciones: z.string().optional().nullable(),
   tiene_archivo: z.boolean(),
 });
+
+export const atencionSchema = z.object({
+  esta_atendido: z.boolean(),
+  fecha_atencion: z.string(),
+  observaciones_atencion: z.string().optional().nullable(),
+  operador_atencion: z.string()
+})
