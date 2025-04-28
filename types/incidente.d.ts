@@ -24,7 +24,8 @@ type Incidente = {
   operador_atencion: string | null;
   observaciones_atencion: string | null;
   zona: string;
-  [key: string]: any;
+  numero_item: number;
+  [key: string]: never;
 }
 
 export type { Incidente };

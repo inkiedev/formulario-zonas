@@ -90,7 +90,7 @@ export default function IncidenteForm(
         timeout: 3000,
       })
 
-      redirect("/crear");
+      redirect("/");
     } else {
       addToast({
         title: "No se registro el incidente",
@@ -284,25 +284,35 @@ export default function IncidenteForm(
           )}
         </Autocomplete>
 
-        <Card>
-          <CardHeader className="flex gap-3">
-            <span className="text-md">Responsable del alimentador</span>
-          </CardHeader>
-          <Divider />
-          <CardBody>
-            <p>{ responsableSeleccionado?.responsable || "Seleccione el alimentador" }</p>
-          </CardBody>
-        </Card>
+        {
+          responsableSeleccionado && (
+            <Card>
+              <CardHeader className="flex gap-3">
+                <span className="text-md">Responsable del alimentador</span>
+              </CardHeader>
+              <Divider />
+              <CardBody>
+                <p>{ responsableSeleccionado?.responsable || "Seleccione el alimentador" }</p>
+              </CardBody>
+            </Card>
+          )
+        }
 
-        <Card>
-          <CardHeader className="flex gap-3 text-base">
-            <span className="text-md">Asistente de Ingenieria</span>
-          </CardHeader>
-          <Divider />
-          <CardBody className="text-base">
-            <p>{ responsableSeleccionado?.auxiliar || "Seleccione el alimentador" }</p>
-          </CardBody>
-        </Card>
+        {
+          responsableSeleccionado?.auxiliar && (
+            <Card>
+              <CardHeader className="flex gap-3 text-base">
+                <span className="text-md">Asistente de Ingenieria</span>
+              </CardHeader>
+              <Divider />
+              <CardBody className="text-base">
+                <p>{ responsableSeleccionado?.auxiliar || "Seleccione el alimentador" }</p>
+              </CardBody>
+            </Card>
+          )
+        }
+
+
 
         <Input
           isRequired

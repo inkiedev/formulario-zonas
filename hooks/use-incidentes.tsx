@@ -12,7 +12,6 @@ export function useIncidentes() {
     fetch(`/api/incidentes`)
       .then(res => res.json())
       .then(res => {
-        console.log(res.data);
         setIncidentes(res.data as Incidente[]);
         setTotal(res.total);
       })

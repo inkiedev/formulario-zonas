@@ -36,12 +36,11 @@ export async function POST(request: NextRequest) {
   }
 
   const incidente = validation.data;
-  const { data, error } = await supabase
-    .from('incidentes')
-    .insert([
-      incidente
-    ])
-    .select()
+
+  const { data, error } = await supabase.rpc('crear_incidente', {
+    incidente_data: incidente
+  });
+
 
   if (error) {
     return NextResponse.json({ error }, { status: 500 });
@@ -53,8 +52,6 @@ export async function POST(request: NextRequest) {
 export async function PATCH(request: NextRequest) {
   const supabase = await createClient();
   const payload = await request.json();
-
-  console.log(payload)
 
   const validation = atencionSchema.safeParse(payload.data);
 
@@ -68,7 +65,6 @@ export async function PATCH(request: NextRequest) {
     .eq('id', payload.incidente)
 
   if (error) {
-    console.log(error)
     return NextResponse.json({ error }, { status: 500 });
   }
 
