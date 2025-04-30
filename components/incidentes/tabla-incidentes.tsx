@@ -24,7 +24,7 @@ import ModalAtencion from "@/components/incidentes/modal-atencion";
 import ModalIncidente from "@/components/incidentes/modal-incidente";
 
 export const columns = [
-  {name: "ITEM", uid: "numero_item", sortable: true},
+  {name: "FORMATO", uid: "numero_item", sortable: true},
   {name: "INCIDENTE", uid: "incidente", sortable: true},
   {name: "FECHA", uid: "fecha_creacion",sortable: true, minWidth: "min-w-[10rem]"},
   {name: "ESTADO", uid: "esta_atendido", sortable: true},

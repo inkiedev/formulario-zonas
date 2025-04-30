@@ -5,6 +5,8 @@ import {
   ModalBody,
 } from "@heroui/react";
 
+import "./modal-incidente.css"
+
 import { Incidente } from "@/types/incidente";
 import {formatearFechaYHora} from "@/components/incidentes/tabla-incidentes";
 
@@ -16,68 +18,76 @@ export default function ModalIncidente({ isOpen, onOpenChange, incidente }: {isO
         <ModalContent>
           {() => (
             <>
-              <ModalHeader className="flex flex-col">Item: {incidente?.id}</ModalHeader>
+              <ModalHeader className="flex flex-col">Formato: {incidente?.numero_item}</ModalHeader>
               <ModalBody>
-                <div className="grid grid-cols-2 grid-rows-8 w-full min-h-[60vh] mb-4">
-                  <div>
-                    <p className="text-sm font-semibold">Incidente</p>
-                    <p className="text-sm">{incidente?.incidente}</p>
+                <div>
+                  <div className="incidente-container w-full mb-2 min-h-[50vh]">
+                    <div>
+                      <p className="text-sm font-semibold">Fecha</p>
+                      <p className="text-sm">{formatearFechaYHora(incidente?.fecha_creacion || "")}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold">Ingeniero de turno</p>
+                      <p className="text-sm">{incidente?.superintendente}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold">Incidente</p>
+                      <p className="text-sm">{incidente?.incidente}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold">Alimentador</p>
+                      <p className="text-sm">{incidente?.responsables?.alimentador}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold">Asunto</p>
+                      <p className="text-sm">{incidente?.asunto}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold">Responsable</p>
+                      <p className="text-sm">{incidente?.responsables?.responsable}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold">Motivo</p>
+                      <p className="text-sm">{incidente?.motivo}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold">Auxiliar</p>
+                      <p className="text-sm">{incidente?.responsables?.auxiliar || "Sin auxiliar"}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold">Dispositivo Afectado</p>
+                      <p className="text-sm">{incidente?.dispositivo}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold">Numero de dispositivo</p>
+                      <p className="text-sm">{incidente?.nombre_dispositivo}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold">Reportado por</p>
+                      <p className="text-sm">{incidente?.atencion}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold">Direccion</p>
+                      <p className="text-sm">{incidente?.direccion}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold">Operador</p>
+                      <p className="text-sm">{incidente?.operador}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold">Observaciones</p>
+                      <p className="text-sm">{incidente?.observaciones}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold">Archivo Fotografico</p>
+                      <p className="text-sm">{incidente?.tiene_archivo ? "Si" : "No"}</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-sm font-semibold">Fecha</p>
-                    <p className="text-sm">{formatearFechaYHora(incidente?.fecha_creacion || "")}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold">Asunto</p>
-                    <p className="text-sm">{incidente?.asunto}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold">Motivo</p>
-                    <p className="text-sm">{incidente?.motivo}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold">Tipo de Dispositivo</p>
-                    <p className="text-sm">{incidente?.dispositivo}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold">Dispositivo</p>
-                    <p className="text-sm">{incidente?.nombre_dispositivo}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold">Reportado por</p>
-                    <p className="text-sm">{incidente?.atencion}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold">Operador</p>
-                    <p className="text-sm">{incidente?.operador}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold">Superintendente</p>
-                    <p className="text-sm">{incidente?.superintendente}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold">Alimentador</p>
-                    <p className="text-sm">{incidente?.responsables?.alimentador}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold">Responsable</p>
-                    <p className="text-sm">{incidente?.responsables?.responsable}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold">Auxiliar</p>
-                    <p className="text-sm">{incidente?.responsables?.auxiliar}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold">Direccion</p>
-                    <p className="text-sm">{incidente?.direccion}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold">Observaciones</p>
-                    <p className="text-sm">{incidente?.observaciones}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold">Archivo Fotografico</p>
-                    <p className="text-sm">{incidente?.tiene_archivo ? "Si" : "No"}</p>
+                  <div className="mb-4 border-2 border-purple-400 rounded-xl p-2 font-semibold">
+                    <h2>ETR</h2>
+                    <p>
+                      Indicar tiempo estimado de atención (ETR), de acuerdo a lo solicitado por la D-DIDIS, Memorando Nro. DIDIS-2024-4024-M
+                    </p>
                   </div>
                 </div>
               </ModalBody>

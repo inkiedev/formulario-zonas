@@ -54,9 +54,16 @@ export default function IncidenteForm(
     if (inputValue.length === 0) {
       return true;
     }
-    textValue = textValue.normalize("NFC").toLocaleLowerCase();
-    inputValue = inputValue.normalize("NFC").toLocaleLowerCase();
-    return textValue.slice(0, inputValue.length) === inputValue;
+    const normalizeText = (text: string) =>
+      text
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLocaleLowerCase();
+
+    textValue = normalizeText(textValue);
+    inputValue = normalizeText(inputValue);
+
+    return textValue.includes(inputValue);
   };
 
   const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
@@ -92,11 +99,22 @@ export default function IncidenteForm(
 
       redirect("/");
     } else {
-      addToast({
-        title: "No se registro el incidente",
-        description: "Ocurrio un error al registrar el incidente.",
-        color: "danger",
-        timeout: 3000,
+      req.json().then(res => {
+        if (res.error) {
+          addToast({
+            title: "Error",
+            description: res.error,
+            color: "danger",
+            timeout: 3000,
+          })
+        } else {
+          addToast({
+            title: "Error",
+            description: "Ocurrio un error al registrar el incidente.",
+            color: "danger",
+            timeout: 3000,
+          })
+        }
       })
     }
   };
@@ -200,6 +218,10 @@ export default function IncidenteForm(
           labelPlacement="outside"
           name="nombre_dispositivo"
           placeholder="Número de dispositivo"
+          onInput={(e) => {
+            const target = e.target as HTMLInputElement;
+            target.value = target.value.toUpperCase();
+          }}
         />
 
         <Autocomplete
@@ -337,8 +359,6 @@ export default function IncidenteForm(
           <Radio value="true">Si</Radio>
           <Radio value="false">No</Radio>
         </RadioGroup>
-
-        <Textarea label="ETR" labelPlacement="outside" isReadOnly value={ETR_TEXT} variant="bordered" />
 
         <div className="flex gap-4">
           <Button className="w-full" color="primary" type="submit" variant="bordered">

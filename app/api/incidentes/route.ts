@@ -41,9 +41,14 @@ export async function POST(request: NextRequest) {
     incidente_data: incidente
   });
 
-
   if (error) {
-    return NextResponse.json({ error }, { status: 500 });
+    switch (error?.code) {
+      case '23505':
+        return NextResponse.json({ error: "El incidente ya esta registrado" }, { status: 422 });
+      default:
+        return NextResponse.json({ error }, { status: 500 });
+    }
+
   }
 
   return NextResponse.json({ data }, { status: 200 })
