@@ -1,7 +1,9 @@
 import { z } from "zod"
 
 export const incidentSchema = z.object({
-  incidente: z.string().length(10, "El número de incidente debe tener 10 dígitos"),
+  incidente: z.string()
+    .min(2, "El número de incidente debe tener al menos 2 caracteres")
+    .max(10, "El número de incidente debe tener como máximo 10 caracteres"),
   zona: z.string().min(1, "La zona es obligatoria"),
   asunto: z.string().min(1, "El asunto es obligatorio"),
   motivo: z.string().min(1, "El motivo es obligatorio"),

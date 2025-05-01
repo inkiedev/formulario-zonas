@@ -33,8 +33,6 @@ const validarLista = ({ validationDetails }: ValidationResult) => {
   }
 }
 
-const ETR_TEXT = "Indicar tiempo estimado de atención (ETR), de acuerdo a lo solicitado por la D-DIDIS, Memorando Nro. DIDIS-2024-4024-M"
-
 export default function IncidenteForm(
   { asuntos, motivos, dispositivos, responsables, superintendentes, jefes, operadores}:
   { asuntos: Asunto[], motivos: Motivo[], dispositivos: Dispositivo[], responsables: Responsable[], superintendentes: Superintendente[], jefes: Jefe[], operadores: Operador[] }
@@ -156,8 +154,8 @@ export default function IncidenteForm(
           name="incidente"
           placeholder="Número de incidente"
           validate={(value: string) => {
-            if (value.length !== 10) {
-              return "El número de incidente debe tener 10 dígitos";
+            if (value.length > 10 || value.length < 2) {
+              return "El número de incidente es invalido";
             }
           }}
         />
