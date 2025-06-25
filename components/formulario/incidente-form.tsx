@@ -146,6 +146,7 @@ export default function IncidenteForm(
           <Radio value="Zona 2">Zona 2</Radio>
           <Radio value="Zona 3">Zona 3</Radio>
           <Radio value="Zona 10">Zona 10</Radio>
+          <Radio value="DICO">DICO</Radio>
         </RadioGroup>
 
         <Input
