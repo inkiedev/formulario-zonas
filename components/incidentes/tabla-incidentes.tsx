@@ -52,6 +52,14 @@ export const statusOptions = [
   {name: "Despachado", uid: "despachado"},
 ];
 
+export const zonasOptions = [
+  {name: "Zona 1", uid: "Zona 1"},
+  {name: "Zona 2", uid: "Zona 2"},
+  {name: "Zona 3", uid: "Zona 3"},
+  {name: "Zona 10", uid: "Zona 10"},
+  {name: "DICO", uid: "DICO"},
+]
+
 export function formatearFechaYHora(fecha: string) {
   const date = new Date(fecha);
   const options: Intl.DateTimeFormatOptions = {
@@ -160,6 +168,7 @@ export default function TablaIncidentes() {
   const [filterValue, setFilterValue] = useState("");
   const [visibleColumns, setVisibleColumns] = useState<SharedSelection>("all");
   const [statusFilter, setStatusFilter] = useState<SharedSelection>("all");
+  const [zonaFilter, setZonaFilter] = useState<SharedSelection>("all");
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>({
   } as SortDescriptor);
@@ -184,14 +193,21 @@ export default function TablaIncidentes() {
         user.incidente.toLowerCase().includes(filterValue.toLowerCase()),
       );
     }
+
     if (statusFilter !== "all" && Array.from(statusFilter).length !== statusOptions.length) {
       filteredUsers = filteredUsers.filter((user) =>
         Array.from(statusFilter).includes(user.esta_atendido ? "atendido" : "despachado"),
       );
     }
 
+    if (zonaFilter !== "all" && Array.from(zonaFilter).length !== zonasOptions.length) {
+      filteredUsers = filteredUsers.filter((user) =>
+        Array.from(zonaFilter).includes(user.zona),
+      );
+    }
+
     return filteredUsers;
-  }, [incidentes, hasSearchFilter, statusFilter, filterValue]);
+  }, [incidentes, hasSearchFilter, statusFilter, filterValue, zonaFilter]);
 
   const pages = Math.ceil(filteredItems.length / rowsPerPage);
 
@@ -384,10 +400,36 @@ export default function TablaIncidentes() {
                 ))}
               </DropdownMenu>
             </Dropdown>
+
             <Dropdown>
               <DropdownTrigger className="hidden sm:flex">
                 <Button endContent={<ChevronDownIcon className="text-small" />} variant="flat">
-                  Filtros
+                  Filtro de zona
+                </Button>
+              </DropdownTrigger>
+              <DropdownMenu
+                disallowEmptySelection
+                aria-label="Columnas de tabla"
+                closeOnSelect={false}
+                selectedKeys={zonaFilter}
+                selectionMode="multiple"
+                onSelectionChange={keys => {
+                  setZonaFilter(keys);
+                  setPage(1);
+                }}
+              >
+                {zonasOptions.map((zona) => (
+                  <DropdownItem key={zona.uid}>
+                    {zona.name}
+                  </DropdownItem>
+                ))}
+              </DropdownMenu>
+            </Dropdown>
+
+            <Dropdown>
+              <DropdownTrigger className="hidden sm:flex">
+                <Button endContent={<ChevronDownIcon className="text-small" />} variant="flat">
+                  Visibilidad de Columnas
                 </Button>
               </DropdownTrigger>
               <DropdownMenu
@@ -429,7 +471,7 @@ export default function TablaIncidentes() {
         </div>
       </div>
     );
-  }, [filterValue, onSearchChange, statusFilter, visibleColumns, filteredItems.length, onRowsPerPageChange, onClear]);
+  }, [filterValue, onSearchChange, statusFilter, zonaFilter, visibleColumns, filteredItems.length, onRowsPerPageChange, onClear]);
 
   const bottomContent = useMemo(() => {
     return (

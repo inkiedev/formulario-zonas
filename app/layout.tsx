@@ -3,6 +3,7 @@ import "./globals.css";
 import {Providers} from "@/app/providers";
 import {ReactNode} from "react";
 import NavbarLayout from "@/components/layout/navbar";
+import {FormularioDirtyProvider} from "@/context/formulario-context";
 
 export const metadata: Metadata = {
   title: "Formato de Incidentes",
@@ -18,10 +19,12 @@ export default function RootLayout({
     <html lang="es">
       <body>
         <Providers>
-          <main className="w-full min-h-screen light text-foreground bg-background">
-            <NavbarLayout />
-            {children}
-          </main>
+          <FormularioDirtyProvider>
+            <main className="w-full min-h-screen light text-foreground bg-background">
+              <NavbarLayout />
+              {children}
+            </main>
+          </FormularioDirtyProvider>
         </Providers>
       </body>
     </html>

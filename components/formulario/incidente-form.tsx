@@ -25,6 +25,8 @@ import {ValidationResult} from "@react-types/shared";
 import {Jefe} from "@/types/jefe";
 import {Operador} from "@/types/operador";
 import {IncidenteDTO} from "@/dto/incidente.dto";
+import { useFormularioDirty } from "@/context/formulario-context";
+import useUnsavedChangesWarning from "@/hooks/use-cambios-sin-guardar";
 
 const validarLista = ({ validationDetails }: ValidationResult) => {
   if (validationDetails.valueMissing) {
@@ -38,6 +40,8 @@ export default function IncidenteForm(
 ) {
   const [zonaSeleccionada, setZonaSeleccionada] = useState<string | null>(null);
   const [responsableSeleccionado, setResponsableSeleccionado] = useState<Responsable | null>(null);
+  const { isDirty, setIsDirty } = useFormularioDirty();
+  useUnsavedChangesWarning(isDirty);
 
   useEffect(() => {
     if (responsableSeleccionado) {
@@ -94,6 +98,7 @@ export default function IncidenteForm(
         timeout: 3000,
       })
 
+      setIsDirty(false)
       redirect("/");
     } else {
       req.json().then(res => {
@@ -137,7 +142,10 @@ export default function IncidenteForm(
         }}
         isRequired
         label="Zona"
-        onChange={e => setZonaSeleccionada(e.target.value)}
+        onChange={e => {
+          setIsDirty(true);
+          setZonaSeleccionada(e.target.value)}
+        }
         name="zona"
         orientation="horizontal"
         >
@@ -158,6 +166,7 @@ export default function IncidenteForm(
               return "El número de incidente es invalido";
             }
           }}
+          onChange={() => setIsDirty(true)}
         />
 
         <Autocomplete
@@ -167,6 +176,8 @@ export default function IncidenteForm(
           defaultItems={asuntos}
           label="Seleccione el asunto"
           isRequired
+          onSelectionChange={() => setIsDirty(true)}
+          onInputChange={() => setIsDirty(true)}
           labelPlacement="outside"
           placeholder="Escriba el asunto si no existe"
           variant="bordered"
@@ -181,6 +192,8 @@ export default function IncidenteForm(
           defaultFilter={filtrar}
           defaultItems={motivos}
           isRequired
+          onSelectionChange={() => setIsDirty(true)}
+          onInputChange={() => setIsDirty(true)}
           label="Seleccione el motivo"
           labelPlacement="outside"
           placeholder="Escriba el motivo si no existe"
@@ -196,6 +209,8 @@ export default function IncidenteForm(
           defaultFilter={filtrar}
           defaultItems={dispositivos}
           isRequired
+          onSelectionChange={() => setIsDirty(true)}
+          onInputChange={() => setIsDirty(true)}
           label="Seleccione el dispositivo"
           labelPlacement="outside"
           placeholder="Escriba el dispositivo si no existe"
@@ -215,6 +230,7 @@ export default function IncidenteForm(
           label="Dispositivo"
           labelPlacement="outside"
           name="nombre_dispositivo"
+          onChange={() => setIsDirty(true)}
           placeholder="Número de dispositivo"
           onInput={(e) => {
             const target = e.target as HTMLInputElement;
@@ -226,6 +242,8 @@ export default function IncidenteForm(
           allowsCustomValue
           errorMessage={validarLista}
           isRequired
+          onSelectionChange={() => setIsDirty(true)}
+          onInputChange={() => setIsDirty(true)}
           defaultFilter={filtrar}
           defaultItems={jefes}
           label="Atendido por"
@@ -245,6 +263,8 @@ export default function IncidenteForm(
           allowsCustomValue
           errorMessage={validarLista}
           isRequired
+          onSelectionChange={() => setIsDirty(true)}
+          onInputChange={() => setIsDirty(true)}
           defaultFilter={filtrar}
           defaultItems={operadores}
           label="Operador"
@@ -264,6 +284,8 @@ export default function IncidenteForm(
           allowsCustomValue
           errorMessage={validarLista}
           isRequired
+          onSelectionChange={() => setIsDirty(true)}
+          onInputChange={() => setIsDirty(true)}
           defaultFilter={filtrar}
           defaultItems={superintendentes}
           label="Superintendente/tecnico de turno"
@@ -281,6 +303,7 @@ export default function IncidenteForm(
 
         <Autocomplete
           isRequired
+          onInputChange={() => setIsDirty(true)}
           errorMessage={validarLista}
           defaultFilter={filtrar}
           defaultItems={responsablesFiltrados}
@@ -290,6 +313,7 @@ export default function IncidenteForm(
           placeholder="Seleccionar alimentador"
           onSelectionChange={(key) => {
             setResponsableSeleccionado(responsables.find(responsable => responsable.id == key as number) as Responsable);
+            setIsDirty(false)
           }}
           listboxProps={{
             emptyContent: "No hay resultados",
@@ -332,10 +356,9 @@ export default function IncidenteForm(
           )
         }
 
-
-
         <Input
           isRequired
+          onChange={() => setIsDirty(true)}
           errorMessage={({ validationDetails }) => {
             if (validationDetails.valueMissing) {
               return "Ingrese la direccion";
@@ -347,13 +370,13 @@ export default function IncidenteForm(
           placeholder="Direccion del incidente"
         />
 
-        <Textarea label="Observaciones" labelPlacement="outside" placeholder="Observaciones" name="observaciones"  />
+        <Textarea label="Observaciones" onChange={() => setIsDirty(true)} labelPlacement="outside" placeholder="Observaciones" name="observaciones"  />
 
         <RadioGroup errorMessage={({ validationDetails }) => {
           if (validationDetails.valueMissing) {
             return "Seleccione una opcion";
           }
-        }} isRequired name="archivo" label="Archivo Fotografico" orientation="horizontal">
+        }} isRequired onChange={() => setIsDirty(true)} name="archivo" label="Archivo Fotografico" orientation="horizontal">
           <Radio value="true">Si</Radio>
           <Radio value="false">No</Radio>
         </RadioGroup>
