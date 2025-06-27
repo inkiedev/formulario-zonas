@@ -13,7 +13,6 @@ import {
   addToast
 } from "@heroui/react";
 
-
 import {FormEvent, useEffect, useState} from "react";
 import {redirect} from "next/navigation";
 import { Asunto } from "@/types/asuntos";
