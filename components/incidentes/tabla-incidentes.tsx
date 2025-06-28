@@ -10,7 +10,7 @@ import {
   DropdownTrigger,
   Input,
   Link,
-  Pagination, SharedSelection, SortDescriptor, Spinner,
+  Pagination, Radio, RadioGroup, SharedSelection, SortDescriptor, Spinner,
   Table,
   TableBody,
   TableCell,
@@ -172,6 +172,7 @@ export default function TablaIncidentes() {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>({
   } as SortDescriptor);
+  const [filter, setFilter] = useState<string>("incidente");
   const [page, setPage] = useState(1);
   const [incidente, setIncidente] = useState<Incidente | null>(null);
   const {isOpen, onOpen, onOpenChange} = useDisclosure();
@@ -189,8 +190,8 @@ export default function TablaIncidentes() {
     let filteredUsers = [...incidentes];
 
     if (hasSearchFilter) {
-      filteredUsers = filteredUsers.filter((user) =>
-        user.incidente.toLowerCase().includes(filterValue.toLowerCase()),
+      filteredUsers = filteredUsers.filter((user) => filter === "incidente" ?
+        user.incidente.toLowerCase().includes(filterValue.toLowerCase()) : user.nombre_dispositivo.toLowerCase().includes(filterValue.toLowerCase())
       );
     }
 
@@ -207,7 +208,7 @@ export default function TablaIncidentes() {
     }
 
     return filteredUsers;
-  }, [incidentes, hasSearchFilter, statusFilter, filterValue, zonaFilter]);
+  }, [incidentes, hasSearchFilter, filter, statusFilter, filterValue, zonaFilter]);
 
   const pages = Math.ceil(filteredItems.length / rowsPerPage);
 
@@ -366,15 +367,29 @@ export default function TablaIncidentes() {
     return (
       <div className="flex flex-col gap-4">
         <div className="flex justify-between gap-3 items-end">
-          <Input
-            isClearable
-            className="w-full sm:max-w-[44%]"
-            placeholder="Buscar por incidente..."
-            startContent={<SearchIcon />}
-            value={filterValue}
-            onClear={() => onClear()}
-            onValueChange={onSearchChange}
-          />
+          <div className="flex justify-items-start gap-5 items-end flex-grow">
+            <Input
+              isClearable
+              className="w-full sm:max-w-[44%] flex-grow"
+              placeholder="Buscar por incidente..."
+              startContent={<SearchIcon />}
+              value={filterValue}
+              onClear={() => onClear()}
+              onValueChange={onSearchChange}
+            />
+            <RadioGroup
+              className="flex-shrink"
+              label="Tipo de filtro"
+              name="filtro"
+              value={filter}
+              orientation="horizontal"
+              onChange={e => setFilter(e.target.value)}
+            >
+              <Radio value="incidente">Incidente</Radio>
+              <Radio value="dispositivo">Dispositivo</Radio>
+            </RadioGroup>
+          </div>
+
           <div className="flex gap-3">
             <Dropdown>
               <DropdownTrigger className="hidden sm:flex">
@@ -471,7 +486,7 @@ export default function TablaIncidentes() {
         </div>
       </div>
     );
-  }, [filterValue, onSearchChange, statusFilter, zonaFilter, visibleColumns, filteredItems.length, onRowsPerPageChange, onClear]);
+  }, [filterValue, onSearchChange, statusFilter, zonaFilter, filter, visibleColumns, filteredItems.length, onRowsPerPageChange, onClear]);
 
   const bottomContent = useMemo(() => {
     return (
