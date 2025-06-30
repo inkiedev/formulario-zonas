@@ -8,7 +8,7 @@ import {
 import "./modal-incidente.css"
 
 import { Incidente } from "@/types/incidente";
-import {formatearFechaYHora} from "@/components/incidentes/tabla-incidentes";
+import {formatearFechaYHora} from "@/utils/table-utils";
 
 export default function ModalIncidente({ isOpen, onOpenChange, incidente }: {isOpen: boolean, onOpenChange: (isOpen: boolean) => void, incidente: Incidente | null}) {
   return (
