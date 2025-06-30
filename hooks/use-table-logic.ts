@@ -1,5 +1,3 @@
-"use client"
-
 import { useState, useCallback, useMemo, ChangeEvent } from 'react';
 import { SharedSelection, SortDescriptor } from "@heroui/react";
 import {Column} from "@/types";
@@ -83,7 +81,10 @@ export function useTablePagination(initialRowsPerPage: number = 10) {
 
 export function useTableColumns(columns: Column[]) {
   const [visibleColumns, setVisibleColumns] = useState<SharedSelection>("all");
-  const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>({} as SortDescriptor);
+  const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>({
+    column: "fecha_creacion",
+    direction: "descending"
+  });
 
   const headerColumns = useMemo(() => {
     if (visibleColumns === "all") return columns;

@@ -71,7 +71,7 @@ export default function TablaIncidentes() {
   const statusFilterArray = filters.statusFilter === "all" ? "all" : Array.from(filters.statusFilter);
   const zonaFilterArray = filters.zonaFilter === "all" ? "all" : Array.from(filters.zonaFilter);
 
-  const {incidentes, total, loading, error, refetch} = useIncidentes({
+  const { incidentes, total, loading, error, refetch } = useIncidentes({
     page: pagination.page,
     limit: pagination.rowsPerPage,
     search: debouncedSearchValue,
@@ -79,18 +79,15 @@ export default function TablaIncidentes() {
     statusFilter: statusFilterArray,
     zonaFilter: zonaFilterArray,
     sortBy: tableColumns.sortDescriptor.column as string,
-    sortDirection: tableColumns.sortDescriptor.direction
+    sortDirection: tableColumns.sortDescriptor.direction === "descending" ? "desc" : "asc"
   });
 
-  // Estados para modales
   const [incidente, setIncidente] = useState<Incidente | null>(null);
-  const {isOpen, onOpen, onOpenChange} = useDisclosure();
-  const {isOpen: isOpenIncidente, onOpen: onOpenIncidente, onOpenChange: onOpenChangeIncidente} = useDisclosure();
+  const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const { isOpen: isOpenIncidente, onOpen: onOpenIncidente, onOpenChange: onOpenChangeIncidente } = useDisclosure();
 
-  // Calcular páginas totales
   const pages = Math.ceil(total / pagination.rowsPerPage);
 
-  // Función de renderizado de celdas memoizada
   const renderCell = useCallback((incidente: Incidente, columnKey: string) => {
     switch (columnKey) {
       case "numero_item":
@@ -113,6 +110,12 @@ export default function TablaIncidentes() {
             onOpen={onOpen}
             setIncidente={setIncidente}
           />
+        );
+      case "tiene_archivo":
+        return (
+          <p className="text-bold text-tiny">
+            {incidente.tiene_archivo ? "Sí" : "No"}
+          </p>
         );
       case "fecha_creacion":
         return (
@@ -148,8 +151,20 @@ export default function TablaIncidentes() {
         return <p className="text-bold text-tiny">{incidente.responsables.alimentador}</p>;
       case "responsables.responsable":
         return <p className="text-bold text-tiny">{incidente.responsables.responsable}</p>;
+      case "responsables.zona":
+        return (
+          <p className="text-bold text-tiny">
+            {incidente.responsables.zona || "Sin zona"}
+          </p>
+        );
       case "responsables.auxiliar":
         return <p className="text-bold text-tiny">{incidente.responsables.auxiliar || "Sin auxiliar"}</p>;
+      case "operador_atencion":
+        return (
+          <p className="text-bold text-tiny">
+            {incidente.operador_atencion || "Sin operador"}
+          </p>
+        );
       default:
         const cellValue = incidente[columnKey as keyof Incidente];
         return (
@@ -175,7 +190,7 @@ export default function TablaIncidentes() {
             isClearable
             className="w-full sm:max-w-[44%] flex-grow"
             placeholder={`Buscar por ${filters.filter === 'incidente' ? 'incidente' : 'dispositivo'}...`}
-            startContent={<SearchIcon/>}
+            startContent={<SearchIcon />}
             value={filters.filterValue}
             onClear={filters.onClear}
             onValueChange={filters.onSearchChange}
@@ -199,7 +214,7 @@ export default function TablaIncidentes() {
         <div className="flex gap-3">
           <Dropdown>
             <DropdownTrigger className="hidden sm:flex">
-              <Button endContent={<ChevronDownIcon className="text-small"/>} variant="flat">
+              <Button endContent={<ChevronDownIcon className="text-small" />} variant="flat">
                 Filtro de atención
               </Button>
             </DropdownTrigger>
@@ -224,7 +239,7 @@ export default function TablaIncidentes() {
 
           <Dropdown>
             <DropdownTrigger className="hidden sm:flex">
-              <Button endContent={<ChevronDownIcon className="text-small"/>} variant="flat">
+              <Button endContent={<ChevronDownIcon className="text-small" />} variant="flat">
                 Filtro de zona
               </Button>
             </DropdownTrigger>
@@ -249,7 +264,7 @@ export default function TablaIncidentes() {
 
           <Dropdown>
             <DropdownTrigger className="hidden sm:flex">
-              <Button endContent={<ChevronDownIcon className="text-small"/>} variant="flat">
+              <Button endContent={<ChevronDownIcon className="text-small" />} variant="flat">
                 Visibilidad de Columnas
               </Button>
             </DropdownTrigger>
@@ -269,7 +284,7 @@ export default function TablaIncidentes() {
             </DropdownMenu>
           </Dropdown>
 
-          <Button color="primary" as={Link} href="/crear" endContent={<PlusIcon/>}>
+          <Button color="primary" as={Link} href="/crear" endContent={<PlusIcon />}>
             Agregar incidente
           </Button>
         </div>
@@ -292,7 +307,6 @@ export default function TablaIncidentes() {
     </div>
   ), [filters, pagination, tableColumns, total]);
 
-  // Contenido inferior memoizado
   const bottomContent = useMemo(() => (
     <div className="py-2 px-2 flex justify-between items-center">
       <Pagination
@@ -325,7 +339,6 @@ export default function TablaIncidentes() {
     </div>
   ), [pagination, pages]);
 
-  // Mostrar error si existe
   if (error) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -342,7 +355,7 @@ export default function TablaIncidentes() {
   return (
     <>
       {loading ? (
-        <Spinner className="mx-auto w-full" size="lg"/>
+        <Spinner className="mx-auto w-full" size="lg" />
       ) : (
         <Table
           isHeaderSticky
@@ -354,10 +367,13 @@ export default function TablaIncidentes() {
           sortDescriptor={tableColumns.sortDescriptor}
           topContent={topContent}
           topContentPlacement="outside"
-          onSortChange={tableColumns.setSortDescriptor}
+          onSortChange={(descriptor) => {
+            tableColumns.setSortDescriptor(descriptor);
+            pagination.resetPagination();
+          }}
         >
           <TableHeader columns={tableColumns.headerColumns}>
-            {(column: Column) => (
+            {(column) => (
               <TableColumn
                 key={column.uid}
                 align="center"
@@ -382,7 +398,7 @@ export default function TablaIncidentes() {
         </Table>
       )}
 
-      <Suspense fallback={<Spinner/>}>
+      <Suspense fallback={<Spinner />}>
         <ModalAtencion
           isOpen={isOpen}
           onOpenChange={onOpenChange}

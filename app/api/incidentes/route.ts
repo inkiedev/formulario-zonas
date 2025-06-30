@@ -1,4 +1,3 @@
-// app/api/incidentes/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import {atencionSchema, incidentSchema} from "@/lib/validation";
 import {createClient} from "@/lib/server";

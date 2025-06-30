@@ -1,8 +1,6 @@
-"use client"
-
-import {useEffect, useState, useCallback, useMemo, Key} from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { Incidente } from "@/types/incidente";
-import {SortDirection} from "@react-types/shared";
+import {Key} from "@react-types/shared";
 
 interface UseIncidentesParams {
   page?: number;
@@ -12,7 +10,7 @@ interface UseIncidentesParams {
   statusFilter?: Key[] | "all";
   zonaFilter?: Key[] | "all";
   sortBy?: string;
-  sortDirection?: SortDirection;
+  sortDirection?: "asc" | "desc";
 }
 
 interface UseIncidentesReturn {
@@ -42,7 +40,6 @@ export function useIncidentes(params: UseIncidentesParams = {}): UseIncidentesRe
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Memoizar los parámetros de query para evitar requests innecesarios
   const queryParams = useMemo(() => {
     const params = new URLSearchParams({
       page: page.toString(),
@@ -95,7 +92,6 @@ export function useIncidentes(params: UseIncidentesParams = {}): UseIncidentesRe
     fetchIncidentes().then();
   }, [fetchIncidentes]);
 
-  // Calcular información de paginación
   const hasNextPage = useMemo(() => page * limit < total, [page, limit, total]);
   const hasPreviousPage = useMemo(() => page > 1, [page]);
 
