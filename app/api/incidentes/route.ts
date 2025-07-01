@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import {atencionSchema, incidentSchema} from "@/lib/validation";
+import {atencionSchema, editarSchema, incidentSchema} from "@/lib/validation";
 import {createClient} from "@/lib/server";
 
 export async function GET(request: NextRequest) {
@@ -157,9 +157,30 @@ export async function PATCH(request: NextRequest) {
   const supabase = await createClient();
   const payload = await request.json();
 
+  if (payload.data?.incidente || payload.data?.nombre_dispositivo) {
+    const validation = editarSchema.safeParse(payload.data);
+
+    if (!validation.success) {
+      console.error('Validation error:', validation.error);
+      return NextResponse.json({ error: validation.error.format() }, { status: 422 });
+    }
+
+    const {data, error} = await supabase
+      .from('incidentes')
+      .update(payload.data)
+      .eq('id', payload.incidente)
+
+    if (error) {
+      return NextResponse.json({ error }, { status: 500 });
+    }
+
+    return NextResponse.json({ data }, {status: 200})
+  }
+
   const validation = atencionSchema.safeParse(payload.data);
 
   if (!validation.success) {
+    console.error('Validation error:', validation.error);
     return NextResponse.json({ error: validation.error.format() }, { status: 422 });
   }
 

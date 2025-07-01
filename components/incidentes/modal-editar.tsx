@@ -6,35 +6,31 @@ import {
   ModalFooter,
   Button,
   Input,
-  Textarea,
-  DatePicker,
-  addToast
+  addToast, Textarea
 } from "@heroui/react";
 
-import {Incidente} from "@/types/incidente";
-import {now, getLocalTimeZone, ZonedDateTime} from "@internationalized/date";
+import { Incidente } from "@/types/incidente";
 import {useEffect, useState} from "react";
 
-export default function ModalAtencion({isOpen, onOpenChange, incidente, onSave}: {
-  isOpen: boolean,
-  onOpenChange: (isOpen: boolean) => void,
-  incidente: Incidente | null,
-  onSave: () => void
-}) {
-  const [personal, setPersonal] = useState<string>("");
+export default function ModalEditar({ isOpen, onOpenChange, incidente, onSave }: {isOpen: boolean, onOpenChange: (isOpen: boolean) => void, incidente: Incidente | null, onSave: () => void}) {
+  const [valorIncidente, setValorIncidente] = useState<string>("");
+  const [nombreDispositivo, setNombreDispositivo] = useState<string>("");
   const [observaciones, setObservaciones] = useState<string>("");
-  const [fecha, setFecha] = useState<ZonedDateTime | null>(null);
 
   useEffect(() => {
-    setFecha(now(getLocalTimeZone()))
-  }, [isOpen]);
+    if (incidente) {
+      setValorIncidente(incidente.incidente);
+      setNombreDispositivo(incidente.nombre_dispositivo);
+      setObservaciones(incidente.observaciones || "");
+    }
+  }, [isOpen, incidente]);
 
-  async function guardar(onClose: () => void) {
+  async function guardar (onClose: () => void) {
     const payload = {
       esta_atendido: true,
-      fecha_atencion: fecha?.toDate().toISOString(),
-      observaciones_atencion: observaciones,
-      operador_atencion: personal
+      incidente: valorIncidente,
+      observaciones: observaciones,
+      nombre_dispositivo: nombreDispositivo,
     }
 
     await fetch("/api/incidentes", {
@@ -60,9 +56,8 @@ export default function ModalAtencion({isOpen, onOpenChange, incidente, onSave}:
         })
       }
 
-      setFecha(now(getLocalTimeZone()))
-      setPersonal("")
-      setObservaciones("")
+      setNombreDispositivo("")
+      setValorIncidente("")
     })
   }
 
@@ -73,13 +68,20 @@ export default function ModalAtencion({isOpen, onOpenChange, incidente, onSave}:
         <ModalContent>
           {(onClose) => (
             <>
-              <ModalHeader className="flex flex-col gap-1">Atencion</ModalHeader>
+              <ModalHeader className="flex flex-col gap-1">Editar incidente</ModalHeader>
               <ModalBody>
                 <Input
-                  value={personal}
-                  onValueChange={setPersonal}
-                  label="Personal"
-                  placeholder="Ingrese el personal que atiende"
+                  value={valorIncidente}
+                  onValueChange={setValorIncidente}
+                  label="Incidente"
+                  placeholder="Ingrese el nuevo numero de incidente"
+                  variant="bordered"
+                />
+                <Input
+                  value={nombreDispositivo}
+                  onValueChange={setNombreDispositivo}
+                  label="Nombre del dispositivo"
+                  placeholder="Ingrese el nuevo nombre del dispositivo"
                   variant="bordered"
                 />
                 <Textarea
@@ -87,14 +89,6 @@ export default function ModalAtencion({isOpen, onOpenChange, incidente, onSave}:
                   onValueChange={setObservaciones}
                   label="Observaciones"
                   placeholder="Observaciones de la atencion"
-                  variant="bordered"
-                />
-                <DatePicker
-                  hideTimeZone
-                  showMonthAndYearPickers
-                  value={fecha}
-                  onChange={setFecha}
-                  label="Fecha de atencion"
                   variant="bordered"
                 />
               </ModalBody>

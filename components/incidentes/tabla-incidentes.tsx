@@ -28,8 +28,9 @@ import { useDebounce } from "@/hooks/use-debounce";
 import { useTableFilters, useTablePagination, useTableColumns } from "@/hooks/use-table-logic";
 import { columns, statusOptions, zonasOptions } from "@/config/table-config";
 import { formatearFechaYHora, ellipsisText, capitalize } from "@/utils/table-utils";
-import { SearchIcon, ChevronDownIcon, PlusIcon } from "@/components/icons";
+import {SearchIcon, ChevronDownIcon, PlusIcon, EyeIcon, EditIcon} from "@/components/icons";
 import {Column} from "@/types";
+import ModalEditar from "@/components/incidentes/modal-editar";
 
 const ModalAtencion = lazy(() => import('@/components/incidentes/modal-atencion'));
 const ModalIncidente = lazy(() => import('@/components/incidentes/modal-incidente'));
@@ -85,6 +86,7 @@ export default function TablaIncidentes() {
   const [incidente, setIncidente] = useState<Incidente | null>(null);
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const { isOpen: isOpenIncidente, onOpen: onOpenIncidente, onOpenChange: onOpenChangeIncidente } = useDisclosure();
+  const { isOpen: isOpenEditar, onOpen: onOpenEditar, onOpenChange: onOpenChangeEditar } = useDisclosure();
 
   const pages = Math.ceil(total / pagination.rowsPerPage);
 
@@ -92,16 +94,9 @@ export default function TablaIncidentes() {
     switch (columnKey) {
       case "numero_item":
         return (
-          <Button
-            size="sm"
-            onPress={() => {
-              setIncidente(incidente);
-              onOpenIncidente();
-            }}
-            className="text-white min-w-8 h-8"
-          >
+          <p className="text-bold text-tiny">
             {incidente.numero_item}
-          </Button>
+          </p>
         );
       case "esta_atendido":
         return (
@@ -165,6 +160,30 @@ export default function TablaIncidentes() {
             {incidente.operador_atencion || "Sin operador"}
           </p>
         );
+      case "acciones":
+        return (
+          <div className="relative flex justify-center items-center gap-2">
+            <button
+              onClick={() => {
+              setIncidente(incidente);
+              onOpenIncidente();
+            }}>
+              <span className="text-lg text-default-400 cursor-pointer active:opacity-50">
+                <EyeIcon />
+              </span>
+            </button>
+            <button
+              onClick={() => {
+                setIncidente(incidente);
+                onOpenEditar()
+              }}
+            >
+              <span className="text-lg text-default-400 cursor-pointer active:opacity-50">
+                <EditIcon />
+              </span>
+            </button>
+          </div>
+        );
       default:
         const cellValue = incidente[columnKey as keyof Incidente];
         return (
@@ -173,7 +192,7 @@ export default function TablaIncidentes() {
           </p>
         );
     }
-  }, [onOpen, onOpenIncidente]);
+  }, [onOpen, onOpenEditar, onOpenIncidente]);
 
   const tableClassNames = useMemo(() => ({
     wrapper: "h-full",
@@ -409,6 +428,13 @@ export default function TablaIncidentes() {
           isOpen={isOpenIncidente}
           onOpenChange={onOpenChangeIncidente}
           incidente={incidente}
+        />
+
+        <ModalEditar
+          isOpen={isOpenEditar}
+          onOpenChange={onOpenChangeEditar}
+          incidente={incidente}
+          onSave={refetch}
         />
       </Suspense>
     </>

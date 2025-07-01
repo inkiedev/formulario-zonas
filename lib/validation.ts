@@ -18,6 +18,14 @@ export const incidentSchema = z.object({
   tiene_archivo: z.boolean(),
 });
 
+export const editarSchema = z.object({
+  incidente: z.string()
+    .min(2, "El número de incidente debe tener al menos 2 caracteres")
+    .max(10, "El número de incidente debe tener como máximo 10 caracteres"),
+  nombre_dispositivo: z.string().min(1, "El nombre del dispositivo es obligatorio"),
+  observaciones_atencion: z.string().optional().nullable(),
+})
+
 export const atencionSchema = z.object({
   esta_atendido: z.boolean(),
   fecha_atencion: z.string(),

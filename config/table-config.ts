@@ -1,4 +1,5 @@
 export const columns = [
+  {name: "ACCIONES", uid: "acciones", minWidth: "min-w-[10rem]"},
   {name: "FORMATO", uid: "numero_item", sortable: true},
   {name: "INCIDENTE", uid: "incidente", sortable: true},
   {name: "FECHA", uid: "fecha_creacion", sortable: true, minWidth: "min-w-[10rem]"},
