@@ -27,7 +27,6 @@ export default function ModalEditar({ isOpen, onOpenChange, incidente, onSave }:
 
   async function guardar (onClose: () => void) {
     const payload = {
-      esta_atendido: true,
       incidente: valorIncidente,
       observaciones: observaciones,
       nombre_dispositivo: nombreDispositivo,
