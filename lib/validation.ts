@@ -23,8 +23,11 @@ export const editarSchema = z.object({
     .min(2, "El número de incidente debe tener al menos 2 caracteres")
     .max(10, "El número de incidente debe tener como máximo 10 caracteres"),
   nombre_dispositivo: z.string().min(1, "El nombre del dispositivo es obligatorio"),
-  observaciones_atencion: z.string().optional().nullable(),
-})
+  observaciones: z.string().optional().nullable(),
+  atencion: z.string().optional(),
+  operador: z.string().optional(),
+  superintendente: z.string().optional(),
+});
 
 export const atencionSchema = z.object({
   esta_atendido: z.boolean(),
