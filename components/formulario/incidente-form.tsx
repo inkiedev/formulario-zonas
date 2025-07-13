@@ -394,7 +394,7 @@ export default function IncidenteForm(
   );
 }
 
-export const CustomRadio = (props: { children: any; value: string; }) => {
+export const CustomRadio = (props: { children: never; value: string; }) => {
   const {children, value} = props;
 
   return (
