@@ -13,7 +13,7 @@ import {
   addToast, cn
 } from "@heroui/react";
 
-import {FormEvent, useEffect, useState} from "react";
+import {FormEvent, ReactNode, useEffect, useState} from "react";
 import {redirect} from "next/navigation";
 import { Asunto } from "@/types/asuntos";
 import { Motivo } from "@/types/motivos";
@@ -394,9 +394,7 @@ export default function IncidenteForm(
   );
 }
 
-export const CustomRadio = (props: { children: never; value: string; }) => {
-  const {children, value} = props;
-
+export const CustomRadio = ({ children, value }: { children: ReactNode, value: string }) => {
   return (
     <Radio
       value={value}
