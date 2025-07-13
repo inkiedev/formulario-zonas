@@ -10,7 +10,7 @@ import {
   RadioGroup,
   Divider,
   Textarea,
-  addToast
+  addToast, cn
 } from "@heroui/react";
 
 import {FormEvent, useEffect, useState} from "react";
@@ -149,11 +149,11 @@ export default function IncidenteForm(
         name="zona"
         orientation="horizontal"
         >
-          <Radio value="Zona 1">Zona 1</Radio>
-          <Radio value="Zona 2">Zona 2</Radio>
-          <Radio value="Zona 3">Zona 3</Radio>
-          <Radio value="Zona 10">Zona 10</Radio>
-          <Radio value="DICO">DICO</Radio>
+          <CustomRadio value="Zona 1">Zona 1</CustomRadio>
+          <CustomRadio value="Zona 2">Zona 2</CustomRadio>
+          <CustomRadio value="Zona 3">Zona 3</CustomRadio>
+          <CustomRadio value="Zona 10">Zona 10</CustomRadio>
+          <CustomRadio value="DICO">DICO</CustomRadio>
         </RadioGroup>
 
         <Input
@@ -393,3 +393,22 @@ export default function IncidenteForm(
     </Form>
   );
 }
+
+export const CustomRadio = (props: { children: any; value: string; }) => {
+  const {children, value} = props;
+
+  return (
+    <Radio
+      value={value}
+      classNames={{
+        base: cn(
+          "inline-flex m-0 bg-content1 hover:bg-content2 items-center justify-between",
+          "flex-row-reverse max-w-[300px] cursor-pointer rounded-lg gap-4 p-4 border-2 border-transparent",
+          "data-[selected=true]:border-primary",
+        ),
+      }}
+    >
+      {children}
+    </Radio>
+  );
+};
