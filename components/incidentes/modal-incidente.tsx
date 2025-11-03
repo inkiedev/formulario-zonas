@@ -12,16 +12,15 @@ import {formatearFechaYHora} from "@/utils/table-utils";
 
 export default function ModalIncidente({ isOpen, onOpenChange, incidente }: {isOpen: boolean, onOpenChange: (isOpen: boolean) => void, incidente: Incidente | null}) {
   return (
-
     <>
       <Modal size="5xl"   isOpen={isOpen} placement="top-center" onOpenChange={onOpenChange}>
         <ModalContent>
           {() => (
             <>
-              <ModalHeader className="flex flex-col">Formato: {incidente?.numero_item}</ModalHeader>
+              <ModalHeader className="flex flex-col">FORMULARIO: {incidente?.numero_item}</ModalHeader>
               <ModalBody>
                 <div>
-                  <div className="incidente-container w-full mb-2 min-h-[50vh]">
+                  <div className="incidente-container w-full mb-5 min-h-[50vh]">
                     <div>
                       <p className="text-sm font-semibold">Fecha</p>
                       <p className="text-sm">{formatearFechaYHora(incidente?.fecha_creacion || "")}</p>
@@ -74,7 +73,7 @@ export default function ModalIncidente({ isOpen, onOpenChange, incidente }: {isO
                       <p className="text-sm font-semibold">Operador</p>
                       <p className="text-sm">{incidente?.operador}</p>
                     </div>
-                    <div>
+                    <div className="row-span-2">
                       <p className="text-sm font-semibold">Observaciones</p>
                       <p className="text-sm">{incidente?.observaciones}</p>
                     </div>

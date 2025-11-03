@@ -12,7 +12,7 @@
     "@heroui/react": "^2.7.6",
     "@supabase/ssr": "^0.6.1",
     "framer-motion": "^12.7.4",
-    "next": "15.3.1",
+    "next": "^15.5.6",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "zod": "^3.24.3"
