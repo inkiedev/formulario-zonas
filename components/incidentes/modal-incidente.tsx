@@ -35,7 +35,7 @@ export default function ModalIncidente({ isOpen, onOpenChange, incidente }: {isO
                     </div>
                     <div>
                       <p className="text-sm font-semibold">Alimentador</p>
-                      <p className="text-sm">{incidente?.responsables?.alimentador}</p>
+                      <p className="text-sm">{incidente?.alimentador}</p>
                     </div>
                     <div>
                       <p className="text-sm font-semibold">Asunto</p>
@@ -43,7 +43,7 @@ export default function ModalIncidente({ isOpen, onOpenChange, incidente }: {isO
                     </div>
                     <div>
                       <p className="text-sm font-semibold">Responsable</p>
-                      <p className="text-sm">{incidente?.responsables?.responsable}</p>
+                      <p className="text-sm">{incidente?.responsable}</p>
                     </div>
                     <div>
                       <p className="text-sm font-semibold">Motivo</p>
@@ -51,7 +51,7 @@ export default function ModalIncidente({ isOpen, onOpenChange, incidente }: {isO
                     </div>
                     <div>
                       <p className="text-sm font-semibold">Auxiliar</p>
-                      <p className="text-sm">{incidente?.responsables?.auxiliar || "Sin auxiliar"}</p>
+                      <p className="text-sm">{incidente?.auxiliar || "Sin auxiliar"}</p>
                     </div>
                     <div>
                       <p className="text-sm font-semibold">Dispositivo Afectado</p>
