@@ -83,6 +83,8 @@ export default function TablaIncidentes() {
     sortDirection: tableColumns.sortDescriptor.direction === "descending" ? "desc" : "asc"
   });
 
+  console.log(incidentes)
+
   const [incidente, setIncidente] = useState<Incidente | null>(null);
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const { isOpen: isOpenIncidente, onOpen: onOpenIncidente, onOpenChange: onOpenChangeIncidente } = useDisclosure();
@@ -143,17 +145,11 @@ export default function TablaIncidentes() {
           </p>
         );
       case "responsables.alimentador":
-        return <p className="text-bold text-tiny">{incidente.responsables.alimentador}</p>;
+        return <p className="text-bold text-tiny">{incidente.alimentador}</p>;
       case "responsables.responsable":
-        return <p className="text-bold text-tiny">{incidente.responsables.responsable}</p>;
-      case "responsables.zona":
-        return (
-          <p className="text-bold text-tiny">
-            {incidente.responsables.zona || "Sin zona"}
-          </p>
-        );
+        return <p className="text-bold text-tiny">{incidente.responsable}</p>;
       case "responsables.auxiliar":
-        return <p className="text-bold text-tiny">{incidente.responsables.auxiliar || "Sin auxiliar"}</p>;
+        return <p className="text-bold text-tiny">{incidente.auxiliar || "Sin auxiliar"}</p>;
       case "operador_atencion":
         return (
           <p className="text-bold text-tiny">

@@ -14,7 +14,6 @@ export const columns = [
   {name: "ALIMENTADOR", uid: "responsables.alimentador", sortable: true},
   {name: "RESPONSABLE", uid: "responsables.responsable", minWidth: "min-w-[12rem]", sortable: true},
   {name: "AUXILIAR", uid: "responsables.auxiliar", minWidth: "min-w-[12rem]"},
-  {name: "ZONA RESPONSABLE", uid: "responsables.zona", minWidth: "min-w-[8rem]"},
   {name: "DIRECCION", uid: "direccion", minWidth: "min-w-[15rem]"},
   {name: "OBSERVACIONES", uid: "observaciones", minWidth: "min-w-[15rem]"},
   {name: "ARCHIVO FOTOGRAFICO", uid: "tiene_archivo"},

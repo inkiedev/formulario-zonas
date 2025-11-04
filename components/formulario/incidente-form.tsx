@@ -8,18 +8,16 @@ import {
   AutocompleteItem,
   Radio,
   RadioGroup,
-  Divider,
   Textarea,
   addToast, cn
 } from "@heroui/react";
 
-import {FormEvent, ReactNode, useEffect, useState} from "react";
+import {FormEvent, ReactNode, useState} from "react";
 import {redirect} from "next/navigation";
 import { Asunto } from "@/types/asuntos";
 import { Motivo } from "@/types/motivos";
 import {Dispositivo} from "@/types/dispositivo";
 import {Responsable} from "@/types/responsable";
-import {Card, CardBody, CardHeader} from "@heroui/card";
 import {Superintendente} from "@/types/superintendente";
 import {ValidationResult} from "@react-types/shared";
 import {Jefe} from "@/types/jefe";
@@ -40,16 +38,10 @@ export default function IncidenteForm(
 ) {
   const [zonaSeleccionada, setZonaSeleccionada] = useState<string | null>(null);
   const [responsableSeleccionado, setResponsableSeleccionado] = useState<Responsable | null>(null);
+  const [responsableInput, setResponsableInput] = useState<string>("");
+  const [auxiliarInput, setAuxiliarInput] = useState<string>("");
   const { isDirty, setIsDirty } = useFormularioDirty();
   useUnsavedChangesWarning(isDirty);
-
-  useEffect(() => {
-    if (responsableSeleccionado) {
-      setResponsableSeleccionado(responsableSeleccionado);
-    } else {
-      setResponsableSeleccionado(null);
-    }
-  }, [responsableSeleccionado]);
 
   const filtrar = (textValue: string, inputValue: string) => {
     if (inputValue.length === 0) {
@@ -82,7 +74,9 @@ export default function IncidenteForm(
       atencion: data.jefe,
       operador: data.operador,
       superintendente: data.superintendente,
-      id_responsable: responsableSeleccionado?.id,
+      alimentador: data.alimentador,
+      responsable: responsableInput,
+      auxiliar: auxiliarInput,
       direccion: data.direccion,
       observaciones: data.observaciones || null,
       tiene_archivo: data.archivo === "true",
@@ -302,59 +296,65 @@ export default function IncidenteForm(
         </Autocomplete>
 
         <Autocomplete
-          isRequired
-          onInputChange={() => setIsDirty(true)}
-          errorMessage={validarLista}
-          defaultFilter={filtrar}
-          defaultItems={responsablesFiltrados}
-          isDisabled={zonaSeleccionada === null}
-          label="Seleccione el alimentador"
-          labelPlacement="outside"
-          placeholder="Seleccionar alimentador"
-          onSelectionChange={(key) => {
-            setResponsableSeleccionado(responsables.find(responsable => responsable.id == key as number) as Responsable);
-            setIsDirty(false)
-          }}
-          listboxProps={{
-            emptyContent: "No hay resultados",
-          }}
-          variant="bordered"
-          name="alimentador"
+            isRequired
+            onInputChange={() => setIsDirty(true)}
+            errorMessage={validarLista}
+            defaultFilter={filtrar}
+            defaultItems={responsablesFiltrados}
+            isDisabled={zonaSeleccionada === null}
+            label="Seleccione el alimentador"
+            labelPlacement="outside"
+            placeholder="Seleccionar alimentador"
+            onSelectionChange={(key) => {
+              const responsable = responsables.find(r => r.id == key as number);
+              if (responsable) {
+                setResponsableSeleccionado(responsable);
+                setResponsableInput(responsable.responsable || "");
+                setAuxiliarInput(responsable.auxiliar || "");
+              }
+              setIsDirty(true);
+            }}
+            listboxProps={{
+              emptyContent: "No hay resultados",
+            }}
+            variant="bordered"
+            name="alimentador"
         >
           {(responsable: Responsable) => (
-            <AutocompleteItem key={responsable.id}>
-              {responsable.alimentador}
-            </AutocompleteItem>
+              <AutocompleteItem key={responsable.id}>
+                {responsable.alimentador}
+              </AutocompleteItem>
           )}
         </Autocomplete>
 
-        {
-          responsableSeleccionado && (
-            <Card>
-              <CardHeader className="flex gap-3">
-                <span className="text-md">Responsable del alimentador</span>
-              </CardHeader>
-              <Divider />
-              <CardBody>
-                <p>{ responsableSeleccionado?.responsable || "Seleccione el alimentador" }</p>
-              </CardBody>
-            </Card>
-          )
-        }
+        {responsableSeleccionado && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Input
+                  isRequired
+                  label="Responsable del alimentador"
+                  labelPlacement="outside"
+                  name="responsable"
+                  placeholder="Nombre del responsable"
+                  value={responsableInput}
+                  onChange={(e) => {
+                    setResponsableInput(e.target.value);
+                    setIsDirty(true);
+                  }}
+              />
 
-        {
-          responsableSeleccionado?.auxiliar && (
-            <Card>
-              <CardHeader className="flex gap-3 text-base">
-                <span className="text-md">Asistente de Ingenieria</span>
-              </CardHeader>
-              <Divider />
-              <CardBody className="text-base">
-                <p>{ responsableSeleccionado?.auxiliar || "Seleccione el alimentador" }</p>
-              </CardBody>
-            </Card>
-          )
-        }
+              <Input
+                  label="Asistente de Ingeniería"
+                  labelPlacement="outside"
+                  name="auxiliar"
+                  placeholder="Nombre del auxiliar"
+                  value={auxiliarInput}
+                  onChange={(e) => {
+                    setAuxiliarInput(e.target.value);
+                    setIsDirty(true);
+                  }}
+              />
+            </div>
+        )}
 
         <Input
           isRequired

@@ -8,7 +8,8 @@ type IncidenteDTO = {
   atencion: string;
   operador: string;
   superintendente: string;
-  id_responsable: number;
+  responsable: string;
+  auxiliar: string;
   direccion: string;
   observaciones: string | null;
   tiene_archivo: boolean;

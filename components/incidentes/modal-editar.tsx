@@ -37,8 +37,9 @@ export default function ModalEditar({
   const [atencion, setAtencion] = useState<string>("");
   const [operador, setOperador] = useState<string>("");
   const [superintendente, setSuperintendente] = useState<string>("");
+  const [responsable, setResponsable] = useState<string>("");
+  const [auxiliar, setAuxiliar] = useState<string>("");
 
-  // Hook para obtener datos de las tablas
   const { superintendentes, jefes, operadores, loading: loadingData, error: errorData } = useFormData();
 
   useEffect(() => {
@@ -49,6 +50,8 @@ export default function ModalEditar({
       setAtencion(incidente.atencion || "");
       setOperador(incidente.operador || "");
       setSuperintendente(incidente.superintendente || "");
+      setResponsable(incidente.responsable || "");
+      setAuxiliar(incidente.auxiliar || "");
     }
   }, [isOpen, incidente]);
 
@@ -57,10 +60,10 @@ export default function ModalEditar({
       return true;
     }
     const normalizeText = (text: string) =>
-      text
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .toLocaleLowerCase();
+        text
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .toLocaleLowerCase();
 
     textValue = normalizeText(textValue);
     inputValue = normalizeText(inputValue);
@@ -76,6 +79,8 @@ export default function ModalEditar({
       atencion: atencion,
       operador: operador,
       superintendente: superintendente,
+      responsable: responsable,
+      auxiliar: auxiliar,
     }
 
     await fetch("/api/incidentes", {
@@ -107,153 +112,174 @@ export default function ModalEditar({
       setAtencion("")
       setOperador("")
       setSuperintendente("")
+      setResponsable("")
+      setAuxiliar("")
     })
   }
 
   if (errorData) {
     return (
-      <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
-        <ModalContent>
-          <ModalBody className="text-center p-6">
-            <p className="text-red-500">Error al cargar los datos: {errorData}</p>
-            <Button color="primary" onPress={() => onOpenChange(false)}>
-              Cerrar
-            </Button>
-          </ModalBody>
-        </ModalContent>
-      </Modal>
+        <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
+          <ModalContent>
+            <ModalBody className="text-center p-6">
+              <p className="text-red-500">Error al cargar los datos: {errorData}</p>
+              <Button color="primary" onPress={() => onOpenChange(false)}>
+                Cerrar
+              </Button>
+            </ModalBody>
+          </ModalContent>
+        </Modal>
     );
   }
 
   return (
-    <>
-      <Modal
-        isOpen={isOpen}
-        placement="top-center"
-        onOpenChange={onOpenChange}
-        size="2xl"
-        scrollBehavior="inside"
-      >
-        <ModalContent>
-          {(onClose) => (
-            <>
-              <ModalHeader className="flex flex-col gap-1">
-                Editar incidente
-              </ModalHeader>
-              <ModalBody className="gap-4">
-                {loadingData ? (
-                  <div className="flex justify-center items-center py-8">
-                    <Spinner size="lg" />
-                    <span className="ml-2">Cargando datos...</span>
-                  </div>
-                ) : (
-                  <>
-                    <Input
-                      value={valorIncidente}
-                      onValueChange={setValorIncidente}
-                      label="Incidente"
-                      placeholder="Ingrese el nuevo numero de incidente"
-                      variant="bordered"
-                      isRequired
-                    />
+      <>
+        <Modal
+            isOpen={isOpen}
+            placement="top-center"
+            onOpenChange={onOpenChange}
+            size="2xl"
+            scrollBehavior="inside"
+        >
+          <ModalContent>
+            {(onClose) => (
+                <>
+                  <ModalHeader className="flex flex-col gap-1">
+                    Editar incidente
+                  </ModalHeader>
+                  <ModalBody className="gap-4">
+                    {loadingData ? (
+                        <div className="flex justify-center items-center py-8">
+                          <Spinner size="lg" />
+                          <span className="ml-2">Cargando datos...</span>
+                        </div>
+                    ) : (
+                        <>
+                          <Input
+                              value={valorIncidente}
+                              onValueChange={setValorIncidente}
+                              label="Incidente"
+                              placeholder="Ingrese el nuevo numero de incidente"
+                              variant="bordered"
+                              isRequired
+                          />
 
-                    <Input
-                      value={nombreDispositivo}
-                      onValueChange={setNombreDispositivo}
-                      label="Nombre del dispositivo"
-                      placeholder="Ingrese el nuevo nombre del dispositivo"
-                      variant="bordered"
-                      isRequired
-                    />
+                          <Input
+                              value={nombreDispositivo}
+                              onValueChange={setNombreDispositivo}
+                              label="Nombre del dispositivo"
+                              placeholder="Ingrese el nuevo nombre del dispositivo"
+                              variant="bordered"
+                              isRequired
+                          />
 
-                    <Autocomplete
-                      isRequired
-                      allowsCustomValue
-                      defaultFilter={filtrar}
-                      defaultItems={jefes}
-                      label="Atendido por"
-                      labelPlacement="outside"
-                      placeholder="Persona o grupo que atiende el incidente"
-                      variant="bordered"
-                      inputValue={atencion}
-                      onInputChange={setAtencion}
+                          <Autocomplete
+                              isRequired
+                              allowsCustomValue
+                              defaultFilter={filtrar}
+                              defaultItems={jefes}
+                              label="Atendido por"
+                              labelPlacement="outside"
+                              placeholder="Persona o grupo que atiende el incidente"
+                              variant="bordered"
+                              inputValue={atencion}
+                              onInputChange={setAtencion}
+                          >
+                            {(jefe: Jefe) => (
+                                <AutocompleteItem key={jefe.id} textValue={`${jefe.grupo} ${jefe.jefe}`}>
+                                  {jefe.grupo} {jefe.jefe}
+                                </AutocompleteItem>
+                            )}
+                          </Autocomplete>
+
+                          <Autocomplete
+                              isRequired
+                              allowsCustomValue
+                              defaultFilter={filtrar}
+                              defaultItems={operadores}
+                              label="Operador"
+                              labelPlacement="outside"
+                              placeholder="Seleccione o escriba el operador"
+                              variant="bordered"
+                              inputValue={operador}
+                              onInputChange={setOperador}
+                          >
+                            {(operador: Operador) => (
+                                <AutocompleteItem key={operador.id}>
+                                  {operador.operador}
+                                </AutocompleteItem>
+                            )}
+                          </Autocomplete>
+
+                          <Autocomplete
+                              isRequired
+                              allowsCustomValue
+                              defaultFilter={filtrar}
+                              defaultItems={superintendentes}
+                              label="Superintendente"
+                              labelPlacement="outside"
+                              placeholder="Seleccione o escriba el superintendente"
+                              variant="bordered"
+                              inputValue={superintendente}
+                              onInputChange={setSuperintendente}
+                          >
+                            {(superintendente: Superintendente) => (
+                                <AutocompleteItem key={superintendente.id}>
+                                  {superintendente.nombre}
+                                </AutocompleteItem>
+                            )}
+                          </Autocomplete>
+
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <Input
+                                value={responsable}
+                                onValueChange={setResponsable}
+                                label="Responsable del alimentador"
+                                placeholder="Nombre del responsable"
+                                variant="bordered"
+                                isRequired
+                            />
+
+                            <Input
+                                value={auxiliar}
+                                onValueChange={setAuxiliar}
+                                label="Asistente de Ingeniería"
+                                placeholder="Nombre del auxiliar"
+                                variant="bordered"
+                            />
+                          </div>
+
+                          <Textarea
+                              value={observaciones}
+                              onValueChange={setObservaciones}
+                              label="Observaciones"
+                              placeholder="Observaciones del incidente"
+                              variant="bordered"
+                              minRows={3}
+                          />
+                        </>
+                    )}
+                  </ModalBody>
+                  <ModalFooter>
+                    <Button
+                        color="danger"
+                        variant="light"
+                        onPress={onClose}
                     >
-                      {(jefe: Jefe) => (
-                        <AutocompleteItem key={jefe.id} textValue={`${jefe.grupo} ${jefe.jefe}`}>
-                          {jefe.grupo} {jefe.jefe}
-                        </AutocompleteItem>
-                      )}
-                    </Autocomplete>
-
-                    <Autocomplete
-                      isRequired
-                      allowsCustomValue
-                      defaultFilter={filtrar}
-                      defaultItems={operadores}
-                      label="Operador"
-                      labelPlacement="outside"
-                      placeholder="Seleccione o escriba el operador"
-                      variant="bordered"
-                      inputValue={operador}
-                      onInputChange={setOperador}
+                      Cancelar
+                    </Button>
+                    <Button
+                        color="primary"
+                        onPress={() => guardar(onClose)}
+                        isDisabled={!valorIncidente.trim() || !nombreDispositivo.trim() || !responsable.trim() || loadingData}
                     >
-                      {(operador: Operador) => (
-                        <AutocompleteItem key={operador.id}>
-                          {operador.operador}
-                        </AutocompleteItem>
-                      )}
-                    </Autocomplete>
-
-                    <Autocomplete
-                      isRequired
-                      allowsCustomValue
-                      defaultFilter={filtrar}
-                      defaultItems={superintendentes}
-                      label="Superintendente"
-                      labelPlacement="outside"
-                      placeholder="Seleccione o escriba el superintendente"
-                      variant="bordered"
-                      inputValue={superintendente}
-                      onInputChange={setSuperintendente}
-                    >
-                      {(superintendente: Superintendente) => (
-                        <AutocompleteItem key={superintendente.id}>
-                          {superintendente.nombre}
-                        </AutocompleteItem>
-                      )}
-                    </Autocomplete>
-
-                    <Textarea
-                      value={observaciones}
-                      onValueChange={setObservaciones}
-                      label="Observaciones"
-                      placeholder="Observaciones del incidente"
-                      variant="bordered"
-                      minRows={3}
-                    />
-                  </>
-                )}
-              </ModalBody>
-              <ModalFooter>
-                <Button
-                  color="danger"
-                  variant="light"
-                  onPress={onClose}
-                >
-                  Cancelar
-                </Button>
-                <Button
-                  color="primary"
-                  onPress={() => guardar(onClose)}
-                  isDisabled={!valorIncidente.trim() || !nombreDispositivo.trim() || loadingData}
-                >
-                  Guardar
-                </Button>
-              </ModalFooter>
-            </>
-          )}
-        </ModalContent>
-      </Modal>
-    </>
+                      Guardar
+                    </Button>
+                  </ModalFooter>
+                </>
+            )}
+          </ModalContent>
+        </Modal>
+      </>
   );
 }
