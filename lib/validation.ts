@@ -14,7 +14,6 @@ export const incidentSchema = z.object({
   superintendente: z.string().min(1, "El superintendente es obligatorio"),
   alimentador: z.string().min(1, "El alimentador es obligatorio"),
   responsable: z.string().min(1, "El responsable es obligatorio"),
-  auxiliar: z.string().min(1, "El auxiliar es obligatorio"),
   direccion: z.string().min(1, "La dirección es obligatoria"),
   observaciones: z.string().optional().nullable(),
   tiene_archivo: z.boolean(),
